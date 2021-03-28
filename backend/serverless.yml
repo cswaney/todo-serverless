@@ -18,6 +18,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:Query
         - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 functions:
@@ -35,6 +36,12 @@ functions:
       - http:
           method: post
           path: todos
+  UpdateTodo:
+    handler: src/lambda/http/updateTodo.handler
+    events:
+      - http:
+          method: patch
+          path: todos/{todoId}
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
