@@ -22,6 +22,12 @@ provider:
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
+  GetTodos:
+    handler: src/lambda/http/getTodos.handler
+    events:
+      - http:
+          method: get
+          path: todos
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
