@@ -18,7 +18,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   // TODO: Implement creating a new TODO item
   // Get the userId from the authorization header
   // const userId = getUserId(event)
-  const userId = uuid.v4()  // TODO: placeholder
+  const userId = '55fa3605-2082-484a-bd71-4d9ff9fcd8af'  // TODO: placeholder
   // Create the todo item
   const todoId = uuid.v4()
   const createdAt = new Date().toISOString()
