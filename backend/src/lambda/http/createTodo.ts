@@ -4,7 +4,7 @@ import * as AWS from 'aws-sdk'
 import * as uuid from 'uuid'
 
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
-// import { getUserId } from '../utils'
+import { getUserId } from '../utils'
 // import { ClientRequest } from 'http'
 
 const client = new AWS.DynamoDB.DocumentClient()
@@ -17,8 +17,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   // TODO: Implement creating a new TODO item
   // Get the userId from the authorization header
-  // const userId = getUserId(event)
-  const userId = '55fa3605-2082-484a-bd71-4d9ff9fcd8af'  // TODO: placeholder
+  const userId = getUserId(event)
+  // const userId = '55fa3605-2082-484a-bd71-4d9ff9fcd8af'  // placeholder
   // Create the todo item
   const todoId = uuid.v4()
   const createdAt = new Date().toISOString()
@@ -27,7 +27,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     createdAt,
     todoId,
     name: newTodo.name,
-    dueDate: newTodo.dueDate
+    dueDate: newTodo.dueDate,
+    done: false
   }
   // Put the todo item into dynamodb
   await client.put({
