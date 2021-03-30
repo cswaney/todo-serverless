@@ -4,18 +4,20 @@ import * as AWS from 'aws-sdk'
 
 import { getUserId } from '../utils'
 // import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
+import { createLogger } from '../../utils/logger'
 
 const client = new AWS.DynamoDB.DocumentClient()
 const todosTable = process.env.TODOS_TABLE
+const logger = createLogger('http')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    console.log('event:', event)
 
     // const userId = '55fa3605-2082-484a-bd71-4d9ff9fcd8af'
     const userId = getUserId(event)
     const todoId = event.pathParameters.todoId
     const update = JSON.parse(event.body)
     // const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
+    logger.info('Updating TODO', todoId)
 
     // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
 
@@ -30,7 +32,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     const todos = result.Items
     const todo = todos.filter(todo => todo.todoId == todoId)[0]
     if (todo) {
-        console.log('Found matching todo')
+        logger.info('Found matching TODO', todo)
         const createdAt = todo.createdAt
         for (let attribute in update) {
             todo[attribute] = update[attribute]
@@ -63,7 +65,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
             })
         }
     } else {
-        console.log('Unable to find matching todo')
+        logger.info('Unable to find matching TODO')
         return {
             statusCode: 204,
             headers: {

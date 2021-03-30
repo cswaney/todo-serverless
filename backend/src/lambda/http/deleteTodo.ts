@@ -3,17 +3,18 @@ import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
 
 import { getUserId } from '../utils'
+import { createLogger } from '../../utils/logger'
 
 const client = new AWS.DynamoDB.DocumentClient()
 const todosTable = process.env.TODOS_TABLE
+const logger = createLogger('http')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    console.log('event:', event)
 
     // const userId = '55fa3605-2082-484a-bd71-4d9ff9fcd8af'
     const userId = getUserId(event)
     const todoId = event.pathParameters.todoId
-    // const createdAt = '2021-03-28T19:12:48.423Z'
+    logger.info('Deleting TODO', todoId)
 
     // Query todos
     const result = await client.query({
@@ -27,7 +28,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     // find the createdAt date of the todo you're looking for...
     const todo = todos.filter(todo => todo.todoId == todoId)[0]
     if (todo) {
-        console.log('Found matching todo')
+        logger.info('Found matching TODO', todo)
         const createdAt = todo.createdAt
         await client.delete({
             TableName: todosTable,
@@ -51,7 +52,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
             })
         }
     } else {
-        console.log('Unable to find matching todo')
+        logger.info('Unable to find matching TODO')
         return {
             statusCode: 204,
             headers: {
