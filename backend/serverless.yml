@@ -36,6 +36,7 @@ functions:
       - http:
           method: get
           path: todos
+          authorizer: Auth
   CreateTodo:
     environment:
       SIGNED_URL_EXPIRATION: 300
@@ -44,24 +45,28 @@ functions:
       - http:
           method: post
           path: todos
+          authorizer: Auth
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     events:
       - http:
           method: patch
           path: todos/{todoId}
+          authorizer: Auth
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
       - http:
           method: delete
           path: todos/{todoId}
+          authorizer: Auth
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
       - http:
           method: post
           path: todos/{todoId}/attachment
+          authorizer: Auth
 
 resources:
   Resources:
