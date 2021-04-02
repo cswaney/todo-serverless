@@ -11,12 +11,14 @@ const logger = createLogger('http')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
-    // const userId = '55fa3605-2082-484a-bd71-4d9ff9fcd8af'
+    // Get the userId from authentication header
     const userId = getUserId(event)
+
+    // Get the todoId from path paramters
     const todoId = event.pathParameters.todoId
-    logger.info(`Deleting TODO (todoId=${todoId})`)
 
     // Query todos
+    logger.info(`Deleting TODO (todoId=${todoId})`)
     const result = await client.query({
         TableName: todosTable,
         KeyConditionExpression: 'userId = :userId',  // can you add a ConditionExpression to client.query???
@@ -24,8 +26,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
             ':userId': userId
         }
     }).promise()
+    // Find the specified todo 
     const todos = result.Items
-    // find the createdAt date of the todo you're looking for...
     const todo = todos.filter(todo => todo.todoId == todoId)[0]
     if (todo) {
         logger.info('Found matching TODO', {'data': todo})

@@ -6,7 +6,6 @@ import * as uuid from 'uuid'
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
-// import { ClientRequest } from 'http'
 
 const client = new AWS.DynamoDB.DocumentClient()
 const todosTable = process.env.TODOS_TABLE
@@ -15,31 +14,31 @@ const logger = createLogger('http')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
-  const newTodo: CreateTodoRequest = JSON.parse(event.body)
+  // Parse the request body
+  const todoRequest: CreateTodoRequest = JSON.parse(event.body)
 
-  // TODO: Implement creating a new TODO item
   // Get the userId from the authorization header
   const userId = getUserId(event)
-  logger.info(`Creating a TODO (userid=${userId})`)
-  // const userId = '55fa3605-2082-484a-bd71-4d9ff9fcd8af'  // placeholder
+
   // Create the todo item
+  logger.info(`Creating a TODO (userid=${userId})`)
   const todoId = uuid.v4()
   const createdAt = new Date().toISOString()
-  const todoRecord = {
+  const todoItem = {
     userId,
-    createdAt,
     todoId,
-    name: newTodo.name,
-    dueDate: newTodo.dueDate,
+    createdAt,
+    name: todoRequest.name,
+    dueDate: todoRequest.dueDate,
     done: false,
     attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${todoId}`
   }
   // Put the todo item into dynamodb
   await client.put({
     TableName: todosTable,
-    Item: todoRecord
+    Item: todoItem
   }).promise()
-  logger.info('Created a TODO', {'data': todoRecord})
+  logger.info('Created a TODO', {'data': todoItem})
   // Return response
   return {
     statusCode: 201,
@@ -47,7 +46,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       'Access-Control-Allow-Origin': '*'
     },
     body: JSON.stringify({
-      todoRecord,
+      todoItem,
     })
   }
 }

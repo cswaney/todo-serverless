@@ -2,8 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
 
+import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { getUserId } from '../utils'
-// import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { createLogger } from '../../utils/logger'
 
 const client = new AWS.DynamoDB.DocumentClient()
@@ -12,16 +12,17 @@ const logger = createLogger('http')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
-    // const userId = '55fa3605-2082-484a-bd71-4d9ff9fcd8af'
+    // Parse the request body
+    const updateRequest: UpdateTodoRequest = JSON.parse(event.body)
+
+    // Get the userId from the authorization header
     const userId = getUserId(event)
+
+    // Get the todoId from the path parameters
     const todoId = event.pathParameters.todoId
-    const update = JSON.parse(event.body)
-    // const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
-    logger.info(`Updating TODO (todoId=${todoId})`)
-
-    // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
-
+    
     // Query todos
+    logger.info(`Updating TODO (todoId=${todoId})`)
     const result = await client.query({
         TableName: todosTable,
         KeyConditionExpression: 'userId = :userId',
@@ -34,8 +35,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     if (todo) {
         logger.info('Found matching TODO', {'data': todo})
         const createdAt = todo.createdAt
-        for (let attribute in update) {
-            todo[attribute] = update[attribute]
+        for (let attribute in updateRequest) {
+            todo[attribute] = updateRequest[attribute]
         }
         await client.update({
             TableName: todosTable,

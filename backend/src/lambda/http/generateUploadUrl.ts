@@ -11,8 +11,10 @@ const s3 = new AWS.S3({
 })
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {  
-  // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
+  // Get the todoId from path parameters
   const todoId = event.pathParameters.todoId
+
+  // Get a signed URL
   logger.info(`Generating upload url (todoId=${todoId})`)
   const uploadUrl = s3.getSignedUrl('putObject', {
     Bucket: bucketName,
