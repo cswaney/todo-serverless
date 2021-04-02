@@ -13,7 +13,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     // TODO: Get all TODO items for a user
     // const userId = '55fa3605-2082-484a-bd71-4d9ff9fcd8af'
     const userId = getUserId(event)
-    logger.info('Getting TODOs', userId)
+    logger.info(`Getting TODOs (userId=${userId})`)
 
     // Query todos
     const result = await client.query({
@@ -26,7 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     const todos = result.Items
 
     // Check if user exists
-    logger.info('Found TODOs', todos)
+    logger.info('Found TODOs', {'data': todos})
     const userExists = true
 
     // Return response

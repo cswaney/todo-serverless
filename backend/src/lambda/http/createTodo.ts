@@ -20,7 +20,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   // TODO: Implement creating a new TODO item
   // Get the userId from the authorization header
   const userId = getUserId(event)
-  logger.info('Creating a TODO for user', userId)
+  logger.info(`Creating a TODO (userid=${userId})`)
   // const userId = '55fa3605-2082-484a-bd71-4d9ff9fcd8af'  // placeholder
   // Create the todo item
   const todoId = uuid.v4()
@@ -39,7 +39,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     TableName: todosTable,
     Item: todoRecord
   }).promise()
-  logger.info('Created a TODO', todoRecord)
+  logger.info('Created a TODO', {'data': todoRecord})
   // Return response
   return {
     statusCode: 201,

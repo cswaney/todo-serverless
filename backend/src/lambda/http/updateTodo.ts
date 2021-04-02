@@ -17,7 +17,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     const todoId = event.pathParameters.todoId
     const update = JSON.parse(event.body)
     // const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
-    logger.info('Updating TODO', todoId)
+    logger.info(`Updating TODO (todoId=${todoId})`)
 
     // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
 
@@ -32,7 +32,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     const todos = result.Items
     const todo = todos.filter(todo => todo.todoId == todoId)[0]
     if (todo) {
-        logger.info('Found matching TODO', todo)
+        logger.info('Found matching TODO', {'data': todo})
         const createdAt = todo.createdAt
         for (let attribute in update) {
             todo[attribute] = update[attribute]

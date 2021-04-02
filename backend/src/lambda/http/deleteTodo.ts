@@ -14,7 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     // const userId = '55fa3605-2082-484a-bd71-4d9ff9fcd8af'
     const userId = getUserId(event)
     const todoId = event.pathParameters.todoId
-    logger.info('Deleting TODO', todoId)
+    logger.info(`Deleting TODO (todoId=${todoId})`)
 
     // Query todos
     const result = await client.query({
@@ -28,7 +28,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     // find the createdAt date of the todo you're looking for...
     const todo = todos.filter(todo => todo.todoId == todoId)[0]
     if (todo) {
-        logger.info('Found matching TODO', todo)
+        logger.info('Found matching TODO', {'data': todo})
         const createdAt = todo.createdAt
         await client.delete({
             TableName: todosTable,
