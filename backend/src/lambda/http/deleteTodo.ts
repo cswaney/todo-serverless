@@ -47,7 +47,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         return {
             statusCode: 200,
             headers: {
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true
             },
             body: JSON.stringify({
                 todoId
@@ -58,7 +59,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         return {
             statusCode: 204,
             headers: {
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true
             },
             body: JSON.stringify({
                 todoId
