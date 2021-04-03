@@ -1,4 +1,4 @@
-import * as uuid from 'uuid
+import * as uuid from 'uuid'
 
 import { Todo } from '../ports/todos'
 import { TodoItem } from '../models/TodoItem'
@@ -8,6 +8,7 @@ import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import { parseUserId } from '../auth/utils'
 
 const port = new Todo()
+const bucketName = process.env.ATTACHMENTS_S3_BUCKET
 
 export async function createTodo(token: string, request: CreateTodoRequest): Promise<TodoItem> {
     const userId = parseUserId(token)
