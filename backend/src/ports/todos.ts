@@ -1,12 +1,15 @@
 import * as AWS from 'aws-sdk'
+// import * as AWSXRAY from 'aws-xray-sdk'
+const AWSXRAY = require('aws-xray-sdk')
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
+const XAWS = AWSXRAY.captureAWS(AWS)
 
 import { TodoItem } from '../models/TodoItem'
 
 export class Todo {
 
     constructor(
-        private readonly client: DocumentClient = new AWS.DynamoDB.DocumentClient(),
+        private readonly client: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
         private readonly table = process.env.TODOS_TABLE) {}
 
     async createTodo(item: TodoItem): Promise<TodoItem> {
@@ -79,5 +82,5 @@ export class Todo {
         }).promise()
         return item
     }
-    
+
 }

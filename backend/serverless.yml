@@ -14,6 +14,9 @@ provider:
     TODOS_TABLE: Todos-${self:provider.stage}
     TODO_ID_INDEX: TodoIdIndex
     ATTACHMENTS_S3_BUCKET: todo-serverless-attachments-${self:provider.stage}
+  tracing:
+    lambda: true
+    apiGateway: true
   # iamRoleStatements:
   #   - Effect: Allow
   #     Action:
