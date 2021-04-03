@@ -9,7 +9,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
     const token = getAuthToken(event)
     const todoId = event.pathParameters.todoId
-    const item = deleteTodo(todoId, token)
+    const item = await deleteTodo(todoId, token)
 
     if (item) {
         return {
