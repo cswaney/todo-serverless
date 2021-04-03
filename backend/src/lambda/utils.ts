@@ -13,3 +13,14 @@ export function getUserId(event: APIGatewayProxyEvent): string {
   const jwtToken = split[1]
   return parseUserId(jwtToken)
 }
+
+/**
+ * Get a auth token from an API Gateway event
+ * @param event an event from API Gateway
+ *
+ * @returns an auth token from a JWT token
+ */
+export function getAuthToken(event: APIGatewayProxyEvent): string {
+  const authorization = event.headers.Authorization
+  return authorization.split(' ')[1]
+}

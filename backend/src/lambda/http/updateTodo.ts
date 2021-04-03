@@ -1,61 +1,18 @@
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import 'source-map-support/register'
-import * as AWS from 'aws-sdk'
 
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
-import { getUserId } from '../utils'
-import { createLogger } from '../../utils/logger'
-
-const client = new AWS.DynamoDB.DocumentClient()
-const todosTable = process.env.TODOS_TABLE
-const logger = createLogger('http')
+import { getAuthToken } from '../utils'
+import { updateTodo } from '../../api/todos'
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
-    // Parse the request body
-    const updateRequest: UpdateTodoRequest = JSON.parse(event.body)
-
-    // Get the userId from the authorization header
-    const userId = getUserId(event)
-
-    // Get the todoId from the path parameters
+    const request: UpdateTodoRequest = JSON.parse(event.body)
+    const token = getAuthToken(event)
     const todoId = event.pathParameters.todoId
+    const item = await updateTodo(todoId, request, token)
     
-    // Query todos
-    logger.info(`Updating TODO (todoId=${todoId})`)
-    const result = await client.query({
-        TableName: todosTable,
-        KeyConditionExpression: 'userId = :userId',
-        ExpressionAttributeValues: {
-            ':userId': userId
-        }
-    }).promise()
-    const todos = result.Items
-    const todo = todos.filter(todo => todo.todoId == todoId)[0]
-    if (todo) {
-        logger.info('Found matching TODO', {'data': todo})
-        const createdAt = todo.createdAt
-        for (let attribute in updateRequest) {
-            todo[attribute] = updateRequest[attribute]
-        }
-        await client.update({
-            TableName: todosTable,
-            Key: {
-                userId,
-                createdAt,
-            },
-            UpdateExpression: 'set #todo_name = :name, dueDate = :dueDate, done = :done',
-            ConditionExpression: 'todoId = :todoId',
-            ExpressionAttributeValues: {
-                ':todoId': todoId,
-                ':name': todo.name,
-                ':dueDate': todo.dueDate,
-                ':done': todo.done
-            },
-            ExpressionAttributeNames: {
-                '#todo_name': 'name'
-            }
-        }).promise()
+    if (item) {
         return {
             statusCode: 200,
             headers: {
@@ -63,11 +20,10 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
                 'Access-Control-Allow-Credentials': true
             },
             body: JSON.stringify({
-                todoId
+                item: item
             })
         }
     } else {
-        logger.info('Unable to find matching TODO')
         return {
             statusCode: 204,
             headers: {
@@ -75,7 +31,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
                 'Access-Control-Allow-Credentials': true
             },
             body: JSON.stringify({
-                todoId
+                item: item
             })
         }
     }

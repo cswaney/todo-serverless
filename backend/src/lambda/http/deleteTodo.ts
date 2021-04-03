@@ -1,49 +1,17 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
+import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import 'source-map-support/register'
-import * as AWS from 'aws-sdk'
 
-import { getUserId } from '../utils'
-import { createLogger } from '../../utils/logger'
+import { getAuthToken } from '../utils'
+import { deleteTodo } from '../../api/todos'
 
-const client = new AWS.DynamoDB.DocumentClient()
-const todosTable = process.env.TODOS_TABLE
-const logger = createLogger('http')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
-    // Get the userId from authentication header
-    const userId = getUserId(event)
-
-    // Get the todoId from path paramters
+    const token = getAuthToken(event)
     const todoId = event.pathParameters.todoId
+    const item = deleteTodo(todoId, token)
 
-    // Query todos
-    logger.info(`Deleting TODO (todoId=${todoId})`)
-    const result = await client.query({
-        TableName: todosTable,
-        KeyConditionExpression: 'userId = :userId',  // can you add a ConditionExpression to client.query???
-        ExpressionAttributeValues: {
-            ':userId': userId
-        }
-    }).promise()
-    // Find the specified todo 
-    const todos = result.Items
-    const todo = todos.filter(todo => todo.todoId == todoId)[0]
-    if (todo) {
-        logger.info('Found matching TODO', {'data': todo})
-        const createdAt = todo.createdAt
-        await client.delete({
-            TableName: todosTable,
-            Key: {
-                userId,
-                createdAt,
-            },
-            ConditionExpression: 'todoId = :todoId',
-            ExpressionAttributeValues: {
-                ':todoId': todoId
-            }
-        }).promise()
-
+    if (item) {
         return {
             statusCode: 200,
             headers: {
@@ -51,11 +19,10 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
                 'Access-Control-Allow-Credentials': true
             },
             body: JSON.stringify({
-                todoId
+                item: item
             })
         }
     } else {
-        logger.info('Unable to find matching TODO')
         return {
             statusCode: 204,
             headers: {
@@ -63,7 +30,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
                 'Access-Control-Allow-Credentials': true
             },
             body: JSON.stringify({
-                todoId
+                item: item
             })
         }
     }
