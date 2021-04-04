@@ -4,6 +4,8 @@ service:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - serverless-aws-documentation
+  - serverless-reqvalidator-plugin
 
 provider:
   name: aws
@@ -30,6 +32,21 @@ provider:
   #       - s3:PutObject
   #       - s3:GetObject
   #     Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENTS_S3_BUCKET}/*
+
+custom:
+  documentation:
+    api:
+      info:
+        version: v1.0.0
+        title: Todo API
+        description: Demo Serverless Todo API
+    models:
+      - name: CreateTodoRequest
+        contentType: application/json
+        schema: ${file(src/requests/create-todo-request.json)}
+      - name: UpdateTodoRequest
+        contentType: application/json
+        schema: ${file(src/requests/update-todo-request.json)}
 
 functions:
   Auth:
@@ -62,6 +79,12 @@ functions:
           path: todos
           authorizer: Auth
           cors: true
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Create a todo item
+            description: Create a todo item for the current user
+            requestModels:
+              'application/json': CreateTodoRequest
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     iamRoleStatements:
@@ -76,6 +99,12 @@ functions:
           path: todos/{todoId}
           authorizer: Auth
           cors: true
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Update a todo item
+            description: Update a todo item for the current user
+            requestModels:
+              'application/json': UpdateTodoRequest
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     iamRoleStatements:
@@ -181,3 +210,12 @@ resources:
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: 'ApiGatewayRestApi'
+    # Request Validation
+    RequestBodyValidator:
+      Type: AWS::ApiGateway::RequestValidator
+      Properties:
+        Name: 'request-body-validator'
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
