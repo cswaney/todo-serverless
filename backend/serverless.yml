@@ -16,6 +16,7 @@ provider:
     TODOS_TABLE: Todos-${self:provider.stage}
     TODO_ID_INDEX: TodoIdIndex
     ATTACHMENTS_S3_BUCKET: todo-serverless-attachments-${self:provider.stage}
+    SIGNED_URL_EXPIRATION: 300
   tracing:
     lambda: true
     apiGateway: true
@@ -70,9 +71,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}    
-    environment:
-      SIGNED_URL_EXPIRATION: 300
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}      
     events:
       - http:
           method: post
